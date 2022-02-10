@@ -1,6 +1,6 @@
 import { battery as batteryInfo } from 'systeminformation';
-import { StatusBarAlignment, StatusBarItem, window } from 'vscode';
-import { BatteryLevel, Position } from '../constants';
+import { StatusBarAlignment, StatusBarItem, window, ThemeColor } from 'vscode';
+import { BatteryLevel, Position, BatteryLevelPerfomance} from '../constants';
 import { ExtensionConfiguration } from '../interfaces';
 import { utils } from './utils';
 
@@ -47,6 +47,9 @@ export class Battery {
       const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
       const charging = data.ischarging ? '+' : '';
       this.battery.text = `${charging}${level}%`;
+      if (level < 40 || level > 80) {
+        this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
+      }
     });
   }
 
