@@ -24,3 +24,6 @@ Set the polling interval for the clock in ms. By default, set to 1000ms.
 
 ### `lifeline.swap`
 Swap the display order of the battery and clock. Ignored if device has no battery. By default, set to `false`.
+
+### `lifeline.battery.performance`
+To improve battery performance, the battery level should remain between 40 and 80%. By default, set to `false`.
