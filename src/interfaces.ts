@@ -2,5 +2,6 @@ export interface ExtensionConfiguration {
   swap: boolean
   clockFormat: string,
   clockInterval: number,
-  batteryInterval: number
+  batteryInterval: number,
+  batteryPerformance: boolean
 }

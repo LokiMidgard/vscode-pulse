@@ -47,7 +47,7 @@ export class Battery {
       const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
       const charging = data.ischarging ? '+' : '';
       this.battery.text = `${charging}${level}%`;
-      if (level < 40 || level > 80) {
+      if ((level < 40 || level > 80) && this.config.batteryPerformance) {
         this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
       }
     });
