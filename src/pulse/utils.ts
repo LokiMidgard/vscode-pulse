@@ -17,6 +17,6 @@ export class utils {
   }
 
   static async batteryCheck(): Promise<boolean> {
-    return (await batteryInfo()).hasbattery;
+    return (await batteryInfo()).hasBattery;
   }
 }

@@ -45,7 +45,7 @@ export class Battery {
   private updateBattery(): void {
     batteryInfo().then((data) => {
       const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
-      const charging = data.ischarging ? '+' : '';
+      const charging = data.isCharging ? '+' : '';
       this.battery.text = `${charging}${level}%`;
       if ((level < (this.config.batteryError ?? 0))) {
         this.battery.color = new ThemeColor('statusBarItem.errorForeground');
