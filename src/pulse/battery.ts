@@ -46,12 +46,16 @@ export class Battery {
     batteryInfo().then((data) => {
       const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
       const charging = data.ischarging ? '+' : '';
-      if ((level < (this.config.batteryPerformance ?? 0))) {
-        this.battery.text = `$(error) ${charging}${level}%`;
+      this.battery.text = `${charging}${level}%`;
+      if ((level < (this.config.batteryError ?? 0))) {
         this.battery.color = new ThemeColor('statusBarItem.errorForeground');
+        this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
+      } else if ((level < (this.config.batteryWarning ?? 0))) {
+        this.battery.color = new ThemeColor('statusBarItem.warningForeground');
+        this.battery.backgroundColor = new ThemeColor('statusBarItem.warningBackground');
       } else {
-        this.battery.text = `${charging}${level}%`;
         this.battery.color = undefined;
+        this.battery.backgroundColor = undefined;
       }
     });
   }

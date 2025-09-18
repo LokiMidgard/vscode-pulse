@@ -2,7 +2,7 @@
 	"name": "vscode-pulse",
 	"displayName": "Pulse: Clock & battery",
 	"description": "Display a clock and current battery state in the status bar. A fork of the Pulse extension.",
-	"version": "0.8.3",
+	"version": "1.0.0",
 	"author": "Patrick Kranz",
 	"contributors": [
 		{
@@ -68,10 +68,15 @@
 					"minimum": 1000,
 					"description": "Set the polling interval for the battery in ms. Ignored if device has no battery."
 				},
-				"pulse.battery.performance": {
+				"pulse.battery.warning": {
 					"type": "number",
 					"default": 0,
 					"description": "This will warn when battery falls under the provided value"
+				},
+				"pulse.battery.error": {
+					"type": "number",
+					"default": 0,
+					"description": "This will warn (with error color) when battery falls under the provided value"
 				}
 			}
 		}

@@ -3,5 +3,6 @@ export interface ExtensionConfiguration {
   clockFormat: string,
   clockInterval: number,
   batteryInterval: number,
-  batteryPerformance: number
+  batteryWarning: number
+  batteryError: number
 }

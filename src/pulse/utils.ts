@@ -11,7 +11,8 @@ export class utils {
       clockFormat: workspaceConfig.get('clock.format') as string,
       clockInterval: workspaceConfig.get('clock.interval') as number,
       batteryInterval: workspaceConfig.get('battery.interval') as number,
-      batteryPerformance: workspaceConfig.get('battery.performance') as number
+      batteryWarning: workspaceConfig.get('battery.warning') as number,
+      batteryError: workspaceConfig.get('battery.error') as number
     };
   }
 
