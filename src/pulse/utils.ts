@@ -4,7 +4,7 @@ import { ExtensionConfiguration } from '../interfaces';
 
 export class utils {
   static getConfig(): ExtensionConfiguration {
-    const workspaceConfig = workspace.getConfiguration('lifeline');
+    const workspaceConfig = workspace.getConfiguration('pulse');
 
     return {
       swap: workspaceConfig.get('swap') as boolean,

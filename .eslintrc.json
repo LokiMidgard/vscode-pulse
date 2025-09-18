@@ -17,10 +17,6 @@
 			"error",
 			2
 		],
-		"linebreak-style": [
-			"error",
-			"unix"
-		],
 		"quotes": [
 			"error",
 			"single"
@@ -95,13 +91,6 @@
 		],
 		"no-var": "error",
 		"prefer-const": "error",
-		"no-duplicate-imports": "error",
-		"sort-imports": [
-			"error",
-			{
-				"ignoreCase": true,
-				"ignoreDeclarationSort": true
-			}
-		]
+		"no-duplicate-imports": "error"
 	}
 }

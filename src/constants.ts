@@ -12,5 +12,4 @@ export const enum BatteryLevel {
 
 export const enum BatteryPerformance {
   MIN = 40,
-  MAX = 80
 }

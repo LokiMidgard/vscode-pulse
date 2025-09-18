@@ -1,24 +1,24 @@
 import { ExtensionContext, workspace } from 'vscode';
-import { Battery } from './lifeline/battery';
-import { Clock } from './lifeline/clock';
-import { utils } from './lifeline/utils';
+import { Battery } from './pulse/battery';
+import { Clock } from './pulse/clock';
+import { utils } from './pulse/utils';
 
 export function activate(context: ExtensionContext) {
-  const lifelineClock = new Clock(utils.getConfig());
-  const lifelineBattery = new Battery(utils.getConfig());
-  context.subscriptions.push(lifelineClock);
+  const pulseClock = new Clock(utils.getConfig());
+  const pulseBattery = new Battery(utils.getConfig());
+  context.subscriptions.push(pulseClock);
   
   utils.batteryCheck().then((val) => {
     if (val) {
-      context.subscriptions.push(lifelineBattery);
+      context.subscriptions.push(pulseBattery);
     } else {
-      lifelineBattery.dispose();
+      pulseBattery.dispose();
     }
   });
   
   context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
-    lifelineClock.updateConfig();
-    lifelineBattery.updateConfig();
+    pulseClock.updateConfig();
+    pulseBattery.updateConfig();
   }));
 }
 
