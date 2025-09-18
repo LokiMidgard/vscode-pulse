@@ -1,4 +1,3 @@
-/*eslint-disable no-magic-numbers */
 
 export const enum Position {
   LEFT = -98,
@@ -10,6 +9,3 @@ export const enum BatteryLevel {
   MAX = 100
 }
 
-export const enum BatteryPerformance {
-  MIN = 40,
-}

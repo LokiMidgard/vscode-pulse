@@ -3,5 +3,5 @@ export interface ExtensionConfiguration {
   clockFormat: string,
   clockInterval: number,
   batteryInterval: number,
-  batteryPerformance: boolean
+  batteryPerformance: number
 }
