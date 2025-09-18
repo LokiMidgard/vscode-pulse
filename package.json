@@ -101,7 +101,7 @@
 		"systeminformation": "^4.30.11"
 	},
 	"devDependencies": {
-		"vsce": "^1.81.1",
+		"vsce": "^2.15.0",
 		"@types/vscode": "^1.104.0",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "22.x",
