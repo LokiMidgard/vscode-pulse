@@ -2,7 +2,7 @@
 	"name": "vscode-pulse",
 	"displayName": "Pulse: Clock & battery",
 	"description": "Display a clock and current battery state in the status bar. A fork of the Pulse extension.",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"author": "Patrick Kranz",
 	"contributors": [
 		{
@@ -53,7 +53,7 @@
 				},
 				"pulse.clock.format": {
 					"type": "string",
-					"default": "hh:mm",
+					"default": "HH:mm",
 					"description": "Set the display format for the clock."
 				},
 				"pulse.clock.interval": {
