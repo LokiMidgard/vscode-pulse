@@ -7,8 +7,6 @@
 
 A Visual Studio Code extensions that shows a clock and the current battery state in the status bar.
 
-
-
 ## Features
 
 Pulse presents the time and battery level of your laptop in the bottom right of the status bar. It tries to always be the the rightmost item. By default, it displays the time on the right and the battery on the left. You can swap the positioning (and the time format) in the extension settings. It contains no styling of its own, so the status bar items will always match your theme of choice.
@@ -29,7 +27,7 @@ Set the polling interval for the battery in ms. Ignored if device has no battery
 
 ### `pulse.clock.format`
 
-Sets the display format for the clock. By default, set to `h:mm:ss A`.
+Sets the display format for the clock. By default, set to `hh:mm`.
 
 ### `pulse.clock.interval`
 
@@ -39,6 +37,10 @@ Set the polling interval for the clock in ms. By default, set to 1000ms.
 
 Swap the display order of the battery and clock. Ignored if device has no battery. By default, set to `false`.
 
-### `pulse.battery.performance`
+### `pulse.battery.warning`
 
-To improve battery performance, the battery level should remain between 40 and 80%. By default, set to `false`.
+Set the battery level (0-100) at which the battery text will turn yellow. Ignored if device has no battery. By default, set to `0` (disabled).
+
+### `pulse.battery.error`
+
+Set the battery level (0-100) at which the battery text will turn red. Ignored if device has no battery. By default, set to `0` (disabled).
