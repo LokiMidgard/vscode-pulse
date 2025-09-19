@@ -8,11 +8,14 @@ export class Battery {
   private config: ExtensionConfiguration;
   private battery: StatusBarItem;
   private interval: NodeJS.Timeout;
+  private disposed: boolean;
 
   constructor(currentConfig: ExtensionConfiguration) {
     this.config = currentConfig;
     this.battery = this.createBattery();
-    this.interval = this.startBattery();
+    this.interval = setTimeout(() => { }, 0);
+    this.disposed = false;
+    this.updateBattery();
 
     this.battery.show();
   }
@@ -29,12 +32,10 @@ export class Battery {
   dispose() {
     this.battery.dispose();
     clearInterval(this.interval);
+    this.disposed = true;
   }
 
   redraw() {
-    this.dispose();
-    this.battery = this.createBattery();
-    this.interval = this.startBattery();
     this.battery.show();
   }
 
@@ -44,6 +45,7 @@ export class Battery {
 
   private updateBattery(): void {
     batteryInfo().then((data) => {
+      if (this.disposed) return;
       const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
       const charging = data.isCharging ? '+' : '';
       this.battery.text = `${charging}${level}%`;
@@ -57,14 +59,12 @@ export class Battery {
         this.battery.color = undefined;
         this.battery.backgroundColor = undefined;
       }
+
+      this.interval = setTimeout(() => {
+        this.updateBattery();
+      }, this.config.batteryInterval);
     });
   }
 
-  private startBattery(): NodeJS.Timeout {
-    this.updateBattery();
 
-    return setInterval(() => {
-      this.updateBattery();
-    }, this.config.batteryInterval);
-  }
 }
