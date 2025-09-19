@@ -8,12 +8,13 @@ export class Clock {
   private config: ExtensionConfiguration;
   private clock: StatusBarItem;
   private interval: NodeJS.Timeout;
+  private disposed: boolean = false;
 
   constructor(currentConfig: ExtensionConfiguration) {
     this.config = currentConfig;
     this.clock = this.createClock();
     this.interval = this.startClock();
-    
+
     this.clock.show();
   }
 
@@ -23,10 +24,11 @@ export class Clock {
 
   updateConfig() {
     this.config = utils.getConfig();
-    this.redraw();
   }
 
   dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
     this.clock.dispose();
     clearInterval(this.interval);
   }
@@ -43,10 +45,24 @@ export class Clock {
   }
 
   private startClock(): NodeJS.Timeout {
-    this.clock.text = moment().format(this.config.clockFormat);
-    
-    return setInterval(() => {
-      this.clock.text = moment().format(this.config.clockFormat);
-    }, this.config.clockInterval);
+    const updateClock = () => {
+      if (this.disposed) return;
+      let now = moment();
+      this.clock.text = now.format(this.config.clockFormat);
+      let nextTick;
+      // Prüfe, ob Sekunden im Format enthalten sind
+      if (this.config.clockFormat.includes('s')) {
+        // Nächstes Update nach Ablauf der aktuellen Sekunde
+        nextTick = 1000 - now.milliseconds();
+      } else {
+        // Nächstes Update nach Ablauf der aktuellen Minute
+        nextTick = (60 - now.seconds()) * 1000 - now.milliseconds();
+      }
+      this.interval = setTimeout(updateClock, nextTick);
+    };
+    updateClock();
+    // Dummy-Timeout zurückgeben, damit die Signatur passt
+    // (wird nicht mehr für clearInterval genutzt)
+    return setTimeout(() => { }, 0) as unknown as NodeJS.Timeout;
   }
 }
