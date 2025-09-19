@@ -13,8 +13,9 @@ export class Clock {
   constructor(currentConfig: ExtensionConfiguration) {
     this.config = currentConfig;
     this.clock = this.createClock();
-    this.interval = this.startClock();
+    this.interval = setTimeout(() => { }, 0) as unknown as NodeJS.Timeout;
 
+    this.startClock();
     this.clock.show();
   }
 
@@ -27,16 +28,15 @@ export class Clock {
   }
 
   dispose() {
-    if (this.disposed) return;
+    if (this.disposed) {
+      return;
+    }
     this.disposed = true;
     this.clock.dispose();
     clearInterval(this.interval);
   }
 
   redraw() {
-    this.dispose();
-    this.clock = this.createClock();
-    this.interval = this.startClock();
     this.clock.show();
   }
 
@@ -44,9 +44,11 @@ export class Clock {
     return window.createStatusBarItem(StatusBarAlignment.Right, this.config.swap ? Position.LEFT : Position.RIGHT);
   }
 
-  private startClock(): NodeJS.Timeout {
+  private startClock() {
     const updateClock = () => {
-      if (this.disposed) return;
+      if (this.disposed) {
+        return;
+      }
       let now = moment();
       this.clock.text = now.format(this.config.clockFormat);
       let nextTick;
@@ -61,8 +63,5 @@ export class Clock {
       this.interval = setTimeout(updateClock, nextTick);
     };
     updateClock();
-    // Dummy-Timeout zurückgeben, damit die Signatur passt
-    // (wird nicht mehr für clearInterval genutzt)
-    return setTimeout(() => { }, 0) as unknown as NodeJS.Timeout;
   }
 }
