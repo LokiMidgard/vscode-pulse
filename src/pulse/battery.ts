@@ -1,4 +1,4 @@
-import { battery as batteryInfo } from 'systeminformation';
+import { battery as batteryInfo, powerShellStart, powerShellRelease } from 'systeminformation';
 import { StatusBarAlignment, StatusBarItem, window, ThemeColor } from 'vscode';
 import { BatteryLevel, Position } from '../constants';
 import { ExtensionConfiguration } from '../interfaces';
@@ -16,6 +16,7 @@ export class Battery {
     this.interval = setTimeout(() => { }, 0);
     this.disposed = false;
     this.updateBattery();
+    powerShellStart();
 
     this.battery.show();
   }
@@ -33,6 +34,7 @@ export class Battery {
     this.battery.dispose();
     clearInterval(this.interval);
     this.disposed = true;
+    powerShellRelease();
   }
 
   redraw() {
@@ -44,6 +46,8 @@ export class Battery {
   }
 
   private updateBattery(): void {
+
+
     batteryInfo().then((data) => {
       if (this.disposed) return;
       const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
