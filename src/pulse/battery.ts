@@ -7,7 +7,6 @@ import { utils } from './utils';
 export class Battery {
   private config: ExtensionConfiguration;
   private battery: StatusBarItem;
-  private interval: NodeJS.Timeout;
   private disposed: boolean;
   private powershellError: boolean;
   private outputChannel: OutputChannel;
@@ -16,10 +15,8 @@ export class Battery {
     this.powershellError = false;
     this.config = currentConfig;
     this.battery = this.createBattery();
-    this.interval = setTimeout(() => { }, 0);
     this.disposed = false;
     this.outputChannel = outputChannel;
-    this.updateBattery();
     try {
       powerShellStart();
     } catch (e) {
@@ -27,6 +24,9 @@ export class Battery {
       this.powershellError = true;
       this.outputChannel.appendLine('PowerShell session could not be started. Battery status accuracy will be reduced to save performance.');
     }
+    this.updateBattery().catch((e) => {
+      this.outputChannel.appendLine('Error during initial battery update: ' + String(e));
+    });
     this.battery.show();
   }
 
@@ -40,9 +40,9 @@ export class Battery {
   }
 
   dispose() {
-    this.battery.dispose();
-    clearInterval(this.interval);
+    this.outputChannel.appendLine('Disposing Battery...');
     this.disposed = true;
+    this.battery.dispose();
     powerShellRelease();
   }
 
@@ -54,9 +54,13 @@ export class Battery {
     return window.createStatusBarItem(StatusBarAlignment.Right, this.config.swap ? Position.RIGHT : Position.LEFT);
   }
 
-  private updateBattery(): void {
-    batteryInfo().then((data) => {
-      if (this.disposed) return;
+  private async updateBattery() {
+    while (!this.disposed) {
+
+      const data = await batteryInfo();
+      if (this.disposed) {
+        return;
+      }
       try {
         const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
         const charging = data.isCharging ? '+' : '';
@@ -78,10 +82,12 @@ export class Battery {
         this.battery.color = new ThemeColor('statusBarItem.errorForeground');
         this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
       }
+      await delay(this.powershellError ? 2 * 60 * 1000 : this.config.batteryInterval);
 
-      this.interval = setTimeout(() => {
-        this.updateBattery();
-      }, this.powershellError ? 2 * 60 * 1000 : this.config.batteryInterval);
-    });
+    }
   }
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
