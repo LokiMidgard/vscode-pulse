@@ -9,6 +9,7 @@ export class Battery {
   private battery: StatusBarItem;
   private interval: NodeJS.Timeout;
   private disposed: boolean;
+  private powershellError: boolean;
 
   constructor(currentConfig: ExtensionConfiguration) {
     this.config = currentConfig;
@@ -16,7 +17,14 @@ export class Battery {
     this.interval = setTimeout(() => { }, 0);
     this.disposed = false;
     this.updateBattery();
-    powerShellStart();
+    try {
+      powerShellStart();
+    } catch (e) {
+      console.error('Error starting PowerShell session:', e);
+      this.powershellError = true;
+      console.error('PowerShell session could not be started. Battery status accuracy will be reduced to save performance.');
+    }
+
 
     this.battery.show();
   }
@@ -50,23 +58,32 @@ export class Battery {
 
     batteryInfo().then((data) => {
       if (this.disposed) return;
-      const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
-      const charging = data.isCharging ? '+' : '';
-      this.battery.text = `${charging}${level}%`;
-      if ((this.config.batteryError && level <= (this.config.batteryError ?? 0))) {
+      try {
+
+        const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
+        const charging = data.isCharging ? '+' : '';
+        this.battery.text = `${charging}${level}%`;
+        if ((this.config.batteryError && level <= (this.config.batteryError ?? 0))) {
+          this.battery.color = new ThemeColor('statusBarItem.errorForeground');
+          this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
+        } else if ((this.config.batteryWarning && level <= (this.config.batteryWarning ?? 0))) {
+          this.battery.color = new ThemeColor('statusBarItem.warningForeground');
+          this.battery.backgroundColor = new ThemeColor('statusBarItem.warningBackground');
+        } else {
+          this.battery.color = undefined;
+          this.battery.backgroundColor = undefined;
+        }
+      } catch (e) {
+        // log error but do not crash
+        console.error('Error updating battery status:', e);
+        this.battery.text = `$(alert)`;
         this.battery.color = new ThemeColor('statusBarItem.errorForeground');
         this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
-      } else if ((this.config.batteryWarning && level <= (this.config.batteryWarning ?? 0))) {
-        this.battery.color = new ThemeColor('statusBarItem.warningForeground');
-        this.battery.backgroundColor = new ThemeColor('statusBarItem.warningBackground');
-      } else {
-        this.battery.color = undefined;
-        this.battery.backgroundColor = undefined;
       }
 
       this.interval = setTimeout(() => {
         this.updateBattery();
-      }, this.config.batteryInterval);
+      }, this.powershellError ? 2 * 60 * 1000 : this.config.batteryInterval);
     });
   }
 
