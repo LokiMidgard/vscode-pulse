@@ -5,11 +5,17 @@ import { utils } from './pulse/utils';
 
 export function activate(context: ExtensionContext) {
   const outputChannel = vscodeWndow.createOutputChannel('Pulse');
-  context.subscriptions.push(outputChannel);
+  context.subscriptions.push({
+    dispose: () => {
+      outputChannel.appendLine('Pulse extension deactivated.');
+      outputChannel.dispose();
+    }
+  });
   outputChannel.appendLine('Pulse extension activated.');
 
   try {
 
+    outputChannel.appendLine('Initializing Clock...');
     const pulseClock = new Clock(utils.getConfig());
     context.subscriptions.push(pulseClock);
     context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
@@ -22,8 +28,10 @@ export function activate(context: ExtensionContext) {
 
   try {
 
+    outputChannel.appendLine('Checking for battery...');
     utils.batteryCheck().then((val) => {
       if (val) {
+        outputChannel.appendLine('Battery detected. Initializing Battery...');
         const pulseBattery = new Battery(utils.getConfig(), outputChannel);
         context.subscriptions.push(pulseBattery);
         context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
