@@ -1,5 +1,5 @@
 import { battery as batteryInfo, powerShellStart, powerShellRelease } from 'systeminformation';
-import { StatusBarAlignment, StatusBarItem, window, ThemeColor } from 'vscode';
+import { StatusBarAlignment, StatusBarItem, window, ThemeColor, OutputChannel } from 'vscode';
 import { BatteryLevel, Position } from '../constants';
 import { ExtensionConfiguration } from '../interfaces';
 import { utils } from './utils';
@@ -10,23 +10,23 @@ export class Battery {
   private interval: NodeJS.Timeout;
   private disposed: boolean;
   private powershellError: boolean;
+  private outputChannel: OutputChannel;
 
-  constructor(currentConfig: ExtensionConfiguration) {
+  constructor(currentConfig: ExtensionConfiguration, outputChannel: OutputChannel) {
     this.powershellError = false;
     this.config = currentConfig;
     this.battery = this.createBattery();
     this.interval = setTimeout(() => { }, 0);
     this.disposed = false;
+    this.outputChannel = outputChannel;
     this.updateBattery();
     try {
       powerShellStart();
     } catch (e) {
-      console.error('Error starting PowerShell session:', e);
+      this.outputChannel.appendLine('Error starting PowerShell session: ' + String(e));
       this.powershellError = true;
-      console.error('PowerShell session could not be started. Battery status accuracy will be reduced to save performance.');
+      this.outputChannel.appendLine('PowerShell session could not be started. Battery status accuracy will be reduced to save performance.');
     }
-
-
     this.battery.show();
   }
 
@@ -55,12 +55,9 @@ export class Battery {
   }
 
   private updateBattery(): void {
-
-
     batteryInfo().then((data) => {
       if (this.disposed) return;
       try {
-
         const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
         const charging = data.isCharging ? '+' : '';
         this.battery.text = `${charging}${level}%`;
@@ -76,7 +73,7 @@ export class Battery {
         }
       } catch (e) {
         // log error but do not crash
-        console.error('Error updating battery status:', e);
+        this.outputChannel.appendLine('Error updating battery status: ' + String(e));
         this.battery.text = `$(alert)`;
         this.battery.color = new ThemeColor('statusBarItem.errorForeground');
         this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
@@ -87,6 +84,4 @@ export class Battery {
       }, this.powershellError ? 2 * 60 * 1000 : this.config.batteryInterval);
     });
   }
-
-
 }
