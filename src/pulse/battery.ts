@@ -57,14 +57,33 @@ export class Battery {
   private async updateBattery() {
     while (!this.disposed) {
 
-      const data = await batteryInfo();
+      this.outputChannel.appendLine('Updating battery status...');
+      let data: Awaited<ReturnType<typeof batteryInfo>>;
+      try {
+        data = await Promise.race([
+          batteryInfo(),
+          new Promise<Awaited<ReturnType<typeof batteryInfo>>>((_, reject) => setTimeout(() => reject(new Error('Battery info timeout')), 5000))
+        ]);
+      } catch (e) {
+        this.outputChannel.appendLine('Error fetching battery info: ' + String(e));
+        this.outputChannel.appendLine('Battery info could not be fetched. Retrying in 1 minutes.');
+        if (!this.battery.text.startsWith('$(alert)')) {
+          this.battery.text = `$(alert) ${this.battery.text}`;
+          this.battery.tooltip = 'Error fetching battery info';
+          this.battery.color = new ThemeColor('statusBarItem.errorForeground');
+          this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
+        }
+        await delay(60 * 1000);
+        continue;
+      }
       if (this.disposed) {
-        return;
+        continue;
       }
       try {
         const level = Math.min(Math.max(data.percent, BatteryLevel.MIN), BatteryLevel.MAX);
         const charging = data.isCharging ? '+' : '';
         this.battery.text = `${charging}${level}%`;
+        this.battery.tooltip = `Battery level: ${level}%${data.isCharging ? ' (charging)' : ''}`;
         if ((this.config.batteryError && level <= (this.config.batteryError ?? 0))) {
           this.battery.color = new ThemeColor('statusBarItem.errorForeground');
           this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
@@ -82,7 +101,7 @@ export class Battery {
         this.battery.color = new ThemeColor('statusBarItem.errorForeground');
         this.battery.backgroundColor = new ThemeColor('statusBarItem.errorBackground');
       }
-      await delay(this.powershellError ? 2 * 60 * 1000 : this.config.batteryInterval);
+      await delay(this.powershellError ? 60 * 1000 : this.config.batteryInterval);
 
     }
   }
