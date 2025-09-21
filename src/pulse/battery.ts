@@ -12,6 +12,7 @@ export class Battery {
   private powershellError: boolean;
 
   constructor(currentConfig: ExtensionConfiguration) {
+    this.powershellError = false;
     this.config = currentConfig;
     this.battery = this.createBattery();
     this.interval = setTimeout(() => { }, 0);
