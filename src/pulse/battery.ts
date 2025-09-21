@@ -57,7 +57,6 @@ export class Battery {
   private async updateBattery() {
     while (!this.disposed) {
 
-      this.outputChannel.appendLine('Updating battery status...');
       let data: Awaited<ReturnType<typeof batteryInfo>>;
       try {
         data = await Promise.race([
